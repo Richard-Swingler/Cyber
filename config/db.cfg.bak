@@ -1,0 +1,5 @@
+[globals]
+db[server]=localhost
+db[username]=rs14g12
+db[password]=YOURPASSWORD
+db[name]=db_rs14g12
