@@ -8,6 +8,7 @@
 	if(!isset($_SESSION['attempts']) && empty($_SESSION['attempts'])){
 		$_SESSION['attempts'] = 0;
 	}
+	echo $_SESSION;
 	$form = new Form();
 	echo $form->start();
 	echo $form->add('username');
