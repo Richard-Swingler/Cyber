@@ -21,9 +21,12 @@ class User extends Controller {
 				StatusMessage::add('User already exists','danger');
 			} else if($password != $password2) {
 				StatusMessage::add('Passwords must match','danger');
-			} else {
+			} else if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
+				StatusMessage::add('Invalid email');
+			} else if($captcha == $_SESSION['captcha_code']) {
 				$user = $this->Model->Users;
 				$user->copyfrom('POST');
+				$user->password = sha1($user->password);
 				$user->created = mydate();
 				$user->bio = '';
 				$user->level = 1;
@@ -33,7 +36,9 @@ class User extends Controller {
 				$user->save();	
 				StatusMessage::add('Registration complete','success');
 				return $f3->reroute('/user/login');
-			}
+			}else{
+				StatusMessage::add('Captcha is incorrect','danger');
+			}		
 		}
 	}
 

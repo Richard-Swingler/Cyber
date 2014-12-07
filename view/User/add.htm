@@ -12,12 +12,23 @@
 	echo '<hr/>';
 	echo $form->add('password',array('type' => 'password','value' => ''));
 	echo $form->add('password2',array('type' => 'password','value' => '', 'label' => 'Confirm Password'));
+	//using f3's built in function to generate an image
+	$img = new Image();
+	//using f3's built in function to generate using a very special unicorn font in honotr of Rob from dafont.com, first no = size of captcha second no = length of captcha and sending the information to the session 
+	$img->captcha('fonts/eenhoorn-light.ttf',30, 5,'SESSION.captcha_code');
+	//add captcha using the $form generator
+	echo $form->add('captcha');
+?>
+<!-- Dispay captcha (does not work in echo tag has to be in  html) -->
+<img src="data:image/png;base64,<?= base64_encode($img->dump()); ?>" width="50%"/>
+<?
 	echo '<hr/>';
 	echo $form->add('Register',array('type' => 'submit'));
 	echo $form->end();
 ?>
 
 <hr/>
+
 <p>Already have an account? Just <a href="<?=$site['base']?>/user/login">Login</a>
 
 </div>
