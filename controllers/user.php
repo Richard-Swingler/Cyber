@@ -47,13 +47,16 @@ class User extends Controller {
 			list($username,$password) = array($this->request->data['username'],$this->request->data['password']);
 			if ($this->Auth->login($username,$password)) {
 				StatusMessage::add('Logged in succesfully','success');
-			
+				//resets attemps variable if successful
+				$_SESSION['attempts'] = 0;
 				if(isset($_GET['from'])) {
 					$f3->reroute($_GET['from']);
 				} else {
 					$f3->reroute('/');	
 				}
 			} else {
+				//increases attemps variable for each failed attempts
+				$_SESSION['attempts']++;
 				StatusMessage::add('Invalid username or password','danger');
 			}
 		}		

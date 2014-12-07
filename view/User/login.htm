@@ -4,10 +4,29 @@
 <p>Please type your RobPress username and password to log in</p>
 
 <?
-	$form = new Form(); 
+	//creates attemps variable if it does not exit or is empty
+	if(!isset($_SESSION['attempts']) && empty($_SESSION['attempts'])){
+		$_SESSION['attempts'] = 0;
+	}
+	echo $_SESSION;
+	$form = new Form();
 	echo $form->start();
 	echo $form->add('username');
 	echo $form->add('password',array('type' => 'password','value' => ''));
+	//if 3 or more failed logi attempt will display captcha
+	if ($_SESSION['attempts'] >= 3){
+		//using f3's built in function to generate an image
+		$img = new Image();
+		//using f3's built in function to generate using a very special unicorn font in honotr of Rob from dafont.com, first no = size of captcha second no = length of captcha and sending the information to the session 
+		$img->captcha('fonts/eenhoorn-light.ttf',30, 5,'SESSION.captcha_code');
+		//add captcha using the $form generator
+		echo $form->add('captcha');
+?>
+<!-- Dispay captcha (does not work in echo tag has to be in  html) -->
+<img src="data:image/png;base64,<?= base64_encode($img->dump()); ?>" width="50%"/>
+<?
+	}
+	echo '<br/>';
 	echo $form->add('Login',array('type' => 'submit'));
 	echo $form->end();
 ?>
