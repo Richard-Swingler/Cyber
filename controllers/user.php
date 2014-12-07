@@ -14,6 +14,9 @@ class User extends Controller {
 	}
 
 	public function add($f3) {
+		if(!empty($_SESSION["user"])){
+			$f3->reroute('/');
+		}
 		if($this->request->is('post')) {
 			extract($this->request->data);
 			$check = $this->Model->Users->fetch(array('username' => $username));
@@ -43,6 +46,9 @@ class User extends Controller {
 	}
 
 	public function login($f3) {
+		if(!empty($_SESSION["user"])){
+			$f3->reroute('/');
+		}
 		if ($this->request->is('post')) {
 			list($username,$password) = array($this->request->data['username'],$this->request->data['password']);
 			if ($this->Auth->login($username,$password)) {
