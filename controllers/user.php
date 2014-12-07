@@ -65,8 +65,10 @@ class User extends Controller {
 		$id = $this->Auth->user('id');
 		extract($this->request->data);
 		$u = $this->Model->Users->fetch($id);
+		$oldpass = $u->password;
 		if($this->request->is('post')) {
 			$u->copyfrom('POST');
+			if(empty($u->password)) { $u->password = $oldpass; }
 
 			//Handle avatar upload
 			if(isset($_FILES['avatar']) && isset($_FILES['avatar']['tmp_name']) && !empty($_FILES['avatar']['tmp_name'])) {
