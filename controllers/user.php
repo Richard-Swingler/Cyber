@@ -85,13 +85,24 @@ class User extends Controller {
 			if(empty($u->password)) { $u->password = $oldpass; }
 
 			//Handle avatar upload
-			if(isset($_FILES['avatar']) && isset($_FILES['avatar']['tmp_name']) && !empty($_FILES['avatar']['tmp_name'])) {
+			$valid_mime_types = array(
+			    "image/gif",
+			    "image/png",
+			    "image/jpeg",
+			    "image/pjpeg",
+			);
+			$extention = \Web::instance()->mime($_FILES['avatar']['name']);
+			$mime = $_FILES['avatar']['type'];
+
+			if(isset($_FILES['avatar']) && isset($_FILES['avatar']['tmp_name']) && !empty($_FILES['avatar']['tmp_name']) && in_array($extention, $valid_mime_types) && in_array($mime, $valid_mime_types)) {
 				$url = File::Upload($_FILES['avatar']);
 				$u->avatar = $url;
+				$target_path='/var/webhomes/rs14g12/linuxproj_html/blog/'.$url; //hardcoded url for now as __DIR__ returns /controller
+				chmod($target_path, 0644); //set permission to -rwx-r--r-- aloows for read only no execute except for owner
+								
 			} else if(isset($reset)) {
-				$u->avatar = '';
+				$u->avatar = '';			}
 			}
-
 			$u->save();
 			\StatusMessage::add('Profile updated succesfully','success');
 			return $f3->reroute('/user/profile');
