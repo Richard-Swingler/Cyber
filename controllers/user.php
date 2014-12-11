@@ -27,9 +27,10 @@ class User extends Controller {
 			} else if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
 				StatusMessage::add('Invalid email');
 			} else if($captcha == $_SESSION['captcha_code']) {
+				$crypt = \Bcrypt::instance();
 				$user = $this->Model->Users;
 				$user->copyfrom('POST');
-				$user->password = sha1($user->password);
+				$user->password = $crypt->hash($user->password);
 				$user->created = mydate();
 				$user->bio = '';
 				$user->level = 1;
@@ -50,14 +51,23 @@ class User extends Controller {
 			$f3->reroute('/');
 		}
 		if ($this->request->is('post')) {
+			$from = $_SESSION['from'];
 			list($username,$password) = array($this->request->data['username'],$this->request->data['password']);
-			if ($this->Auth->login($username,$password)) {
+			if($_SESSION['attempts'] >= 3 && isset($_SESSION['captcha_code']) && isset($this->request->data['captcha']) && $this->request->data['captcha'] != $_SESSION['captcha_code']){
+				StatusMessage::add('<b>Alert! Alert!!! robot detected!!!</b></br> or just a normal person, i mean who can read these things!!','danger');
+			}
+			else if ($this->Auth->login($username,$password)) {
 				StatusMessage::add('Logged in succesfully','success');
 				//resets attemps variable if successful
 				$_SESSION['attempts'] = 0;
-				if(isset($_GET['from'])) {
-					$f3->reroute($_GET['from']);
+
+				// var_dump($_SESSION['from']);
+				// die();
+				if(isset($from)){
+
+					$f3->reroute($from);
 				} else {
+
 					$f3->reroute('/');	
 				}
 			} else {
@@ -83,28 +93,27 @@ class User extends Controller {
 		if($this->request->is('post')) {
 			$u->copyfrom('POST');
 			if(empty($u->password)) { $u->password = $oldpass; }
+			else{ 
+				$crypt = \Bcrypt::instance(); 
+				$u->password = $crypt->hash($u->password);}
 
 			//Handle avatar upload
-			$valid_mime_types = array(
-			    "image/gif",
-			    "image/png",
-			    "image/jpeg",
-			    "image/pjpeg",
-			);
-			$extention = \Web::instance()->mime($_FILES['avatar']['name']);
-			$mime = $_FILES['avatar']['type'];
-
-			if(isset($_FILES['avatar']) && isset($_FILES['avatar']['tmp_name']) && !empty($_FILES['avatar']['tmp_name']) && in_array($extention, $valid_mime_types) && in_array($mime, $valid_mime_types)) {
+			$message = 'Profile successfully updated';
+			$status = 'success';
+			if(isset($_FILES['avatar']) && isset($_FILES['avatar']['tmp_name']) && !empty($_FILES['avatar']['tmp_name'])) { 
 				$url = File::Upload($_FILES['avatar']);
-				$u->avatar = $url;
-				$target_path='/var/webhomes/rs14g12/linuxproj_html/blog/'.$url; //hardcoded url for now as __DIR__ returns /controller
-				chmod($target_path, 0644); //set permission to -rwx-r--r-- aloows for read only no execute except for owner
-								
+				if(!$url){
+					$message = 'invalid image';
+					$status = 'danger';
+				}
+				else{
+					$u->avatar = $url;	
+				}			
 			} else if(isset($reset)) {
-				$u->avatar = '';			}
+				$u->avatar = '';			
 			}
 			$u->save();
-			\StatusMessage::add('Profile updated succesfully','success');
+			\StatusMessage::add($message, $status);
 			return $f3->reroute('/user/profile');
 		}			
 		$_POST = $u->cast();

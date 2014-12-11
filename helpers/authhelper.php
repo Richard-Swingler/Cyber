@@ -16,18 +16,28 @@
 
 			//Log user back in from cookie
 			if($f3->exists('COOKIE.RobPress_User')) {
-				$user = unserialize(base64_decode($f3->get('COOKIE.RobPress_User')));
-				$this->forceLogin($user);
+				$cookie = $f3->get('COOKIE.RobPress_User');
+				$user = $results = $this->controller->Model->Users->fetch(array('resume' => $cookie));
+				if($user){
+					$user = $user->cast();
+					$this->forceLogin($user);
+				} else{
+					$f3->clear('COOKIE.RobPress_User');
+					StatusMessage::add('<b>Meddled Cookie</b></br>Please delete your cookies and try to login again','danger');
+					$f3->error(403);
+				}
 			}
 		}		
 
 		/** Look up user by username and password and log them in */
 		public function login($username,$password) {
-			$f3=Base::instance();						
+			$f3=Base::instance();		
+			$crypt=\Bcrypt::instance();				
 			$db = $this->controller->db;
-			$results = $db->query("SELECT * FROM `users` WHERE `username`='$username' AND `password`='$password'");
-			if (!empty($results)) {		
-				$user = $results[0];	
+			$results = $this->controller->Model->Users->fetch(array('username' => $username));
+			$result = (!empty($results) ? $results->cast() : ''); //cast only if not empty
+			if (!empty($results) && $crypt->verify($password, $results['password'])) {	//check against empty once more and verify hashed password against db has using the very method from bcrypt 
+				$user = $results;	
 				$this->setupSession($user);
 				return $this->forceLogin($user);
 			} 
@@ -50,11 +60,16 @@
 			//Remove previous session
 			session_destroy();
 
+			$crypt=\Bcrypt::instance();
+			$hash = $crypt->hash(uniqid(rand(),true));
 			//Setup new session
-			session_id(md5($user['id']));
+			session_id($hash); //more secure hash of session instead of md5
 
 			//Setup cookie for storing user details and for relogging in
-			setcookie('RobPress_User',base64_encode(serialize($user)),time()+3600*24*30,'/');
+			$user->resume = $hash;
+			$user->save();	
+			setcookie('RobPress_User', $hash ,time()+3600*24*30,'/');
+
 
 			//And begin!
 			new Session();

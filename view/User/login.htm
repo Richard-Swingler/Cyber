@@ -20,10 +20,7 @@
 		$img->captcha('fonts/eenhoorn-light.ttf',30, 5,'SESSION.captcha_code');
 		//add captcha using the $form generator
 		echo $form->add('captcha');
-?>
-<!-- Dispay captcha (does not work in echo tag has to be in  html) -->
-<img src="data:image/png;base64,<?= base64_encode($img->dump()); ?>" width="50%"/>
-<?
+		echo '<img src="data:image/png;base64,'.base64_encode($img->dump()).'" width="50%"/>';
 	}
 	echo '<br/>';
 	echo $form->add('Login',array('type' => 'submit'));

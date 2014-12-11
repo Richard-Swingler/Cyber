@@ -14,7 +14,9 @@
 		public function delete($f3) {
 			$postid = $f3->get('PARAMS.3');
 			$post = $this->Model->Posts->fetchById($postid);
+			$comment = $this->Model->Comments->fetch(array('blog_id' => $postid));
 			$post->erase();
+			$comment->erase(); //deletes all comments associated with deleted blog
 
 			//Remove from categories
 			$cats = $this->Model->Post_Categories->fetchAll(array('post_id' => $postid));

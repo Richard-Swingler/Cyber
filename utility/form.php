@@ -8,7 +8,11 @@ class Form {
 	public function start($options=array()) {
 		$action = isset($options['action']) ? $options['action'] : '';
 		$enctype = (isset($options['type']) && $options['type'] == 'file') ? 'enctype="multipart/form-data"' : ''; //Handle file uploads
-		return '<form role="form" method="post" action="'.$action.'" '.$enctype.'>';	
+		$f3 = Base::instance();
+		$token = uniqid(rand(), true); //generate random token
+		$f3->set('SESSION.token', $token); //store token in session
+		return '<form role="form" method="post" action="'.$action.'" '.$enctype.'>'.
+		'<input type="hidden" name="token" value="'. $token .'">'; //add hidden input with token
 	}
 
 	public function file($options) {
@@ -72,19 +76,16 @@ class Form {
 		$base = $f3->get('site.base');
 		return '<textarea style="height: 200px" class="wysiwyg form-control" id="' . $options['field'] . '" name="' . $options['field'] . '">' . $options['value'] . '</textarea>
 		<script type="text/javascript">CKEDITOR.replace(\'' . $options['field'] . "', {
-toolbarGroups: [
- 		{ name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
-		{ name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ] },
-		{ name: 'colors' },
- 		{ name: 'links' },
- 		{ name: 'insert' },
-	],
-	filebrowserUploadUrl: '$base/lib/upload.php'
-}
-
-
-);</script>
-		";
+			toolbarGroups: [
+			 		{ name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+					{ name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ] },
+					{ name: 'colors' },
+			 		{ name: 'links' },
+			 		{ name: 'insert' },
+				],
+				filebrowserUploadUrl: '$base/lib/upload.php'
+			}
+		);</script>";
 	}
 
 
@@ -115,7 +116,6 @@ toolbarGroups: [
 		if(in_array($type,array('submit','hidden')) || (isset($options['div']) && $options['div'] == 0)) {
 			return $this->$type($options);
 		}
-
 		$input = $this->$type($options);
 		$result = <<<EOT
 <div class="form-group">

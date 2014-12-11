@@ -5,8 +5,8 @@
 <h4>Posted by <a href="<?=$site['base']?>/user/view/<?=$author->id?>"><?=$author->displayname?></a> on <?=nicedate($post->created)?></h4>
 <? if(sizeof($blog['Categories']) > 0): ?>
 <p><em>Posted in: 
-<? foreach($blog['Categories'] as $num=>$category): ?>
-<a href="<?=$site['base']?>/blog/index/<?=$category->id?>"><?= $category->title ?></a><? if(($num + 1) < sizeof($blog['Categories'])) { echo ', '; } ?>
+	<? foreach($blog['Categories'] as $num=>$category): ?>
+	<a href="<?=$site['base']?>/blog/index/<?=$category->id?>"><?= $category->title ?></a><? if(($num + 1) < sizeof($blog['Categories'])) { echo ', '; } ?>
 <? endforeach; ?>
 </em></p>
 <? endif; ?>
@@ -20,8 +20,8 @@
 <p><em>No comments have been posted yet</em></p>
 <? else: ?>
 <div class="comments">
-<? foreach($comments as $comment): ?>
-<?php
+	<? foreach($comments as $comment): ?>
+	<?php
 	$can_moderate = 0;
 	$class = "";
 
@@ -33,26 +33,26 @@
 	} elseif ($comment['Comments']->moderated == 0) {
 		continue;
 	}
-?>
-<div class="comment <?=$class?>">
-<?php $avatar = empty($u->avatar) ? '/img/avatar.png' : $comment['Users']->avatar; ?>
-<h4><?=$comment['Comments']->subject?> <span style="float: right">
-<a href="<?=$site['base']?>/user/view/<?=$comment['Users']->id?>"><?=$comment['Users']->displayname?></a>
-<br/><img src="<?=$site['base']?><?=$avatar?>" class="avatar"/></span></h4>
-<h6><?=nicedate($comment['Comments']->created)?></h6>
-<?=$comment['Comments']->message?>
-<? if($comment['Comments']->moderated == 0): ?>
-<p><em>Awaiting moderation</em></p>
-<? endif; ?>
-<?if($user['level'] > 1):?>
-<a href="<?=$site['base']?>/blog/moderate/<?=$comment['Comments']->id?>/0" class="btn btn-danger">Delete</a>
-<a href="<?=$site['base']?>/admin/comment/edit/<?=$comment['Comments']->id?>" class="btn btn-default">Edit</a>
-<?endif;?>
-<?if($can_moderate == 1):?>
-<a href="<?=$site['base']?>/blog/moderate/<?=$comment['Comments']->id?>/1" class="btn btn-success">Approve Comment</a>
-<?endif;?>
-<div class="clearfix"> </div>
-</div>
+	?>
+	<div class="comment <?=$class?>">
+		<?php $avatar = empty($comment['Users']->avatar) ? '/img/avatar.png' : $comment['Users']->avatar; ?>
+		<h4><?=$comment['Comments']->subject?> <span style="float: right">
+			<a href="<?=$site['base']?>/user/view/<?=$comment['Users']->id?>"><?=$comment['Users']->displayname?></a>
+			<br/><img src="<?=$site['base']?><?=$avatar?>" class="avatar"/></span></h4>
+			<h6><?=nicedate($comment['Comments']->created)?></h6>
+			<?=$comment['Comments']->message?>
+			<? if($comment['Comments']->moderated == 0): ?>
+			<p><em>Awaiting moderation</em></p>
+		<? endif; ?>
+		<?if($user['level'] > 1):?>
+		<a href="<?=$site['base']?>/blog/moderate/<?=$comment['Comments']->id?>/0" class="btn btn-danger">Delete</a>
+		<a href="<?=$site['base']?>/admin/comment/edit/<?=$comment['Comments']->id?>" class="btn btn-default">Edit</a>
+		<?endif;?>
+		<?if($can_moderate == 1):?>
+		<a href="<?=$site['base']?>/blog/moderate/<?=$comment['Comments']->id?>/1" class="btn btn-success">Approve Comment</a>
+		<?endif;?>
+		<div class="clearfix"> </div>
+	</div>
 <? endforeach; ?>
 </div>
 <? endif; ?>

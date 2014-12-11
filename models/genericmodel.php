@@ -100,7 +100,6 @@ class GenericModel extends \DB\SQL\Mapper {
 		}
 		return $conditions;
 	}
-
 }
 
 ?>

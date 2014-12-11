@@ -11,11 +11,15 @@ class Page extends AdminController {
 
 	public function add($f3) {
 		if($this->request->is('post')) {
-			$pagename = strtolower(str_replace(" ","_",$this->request->data['title']));
-			$this->Model->Pages->create($pagename);
-		
-			\StatusMessage::add('Page created succesfully','success');
-			return $f3->reroute('/admin/page/edit/' . $pagename);
+			$pagename =  clearpecialchar(strtolower(str_replace(" ","_",$this->request->data['title'])));
+			if(!empty($pagename)){
+				$this->Model->Pages->create($pagename);
+				\StatusMessage::add('Page created succesfully','success');
+				return $f3->reroute('/admin/page/edit/' . $pagename);
+			}else{
+				\StatusMessage::add('invalid file name','danger');
+				return $f3->reroute('/admin/page/');
+			}
 		}
 	}
 
@@ -23,7 +27,7 @@ class Page extends AdminController {
 		$pagename = $f3->get('PARAMS.3');
 		if ($this->request->is('post')) {
 			$pages = $this->Model->Pages;
-			$pages->title = $pagename;
+			$pages->title =$pagename;
 			$pages->content = $this->request->data['content'];
 			$pages->save();
 

@@ -108,17 +108,17 @@ class Blog extends Controller {
 
 			//Get search results
 			$search = str_replace("*","%",$search); //Allow * as wildcard
-			$ids = $this->db->connection->exec("SELECT id FROM `posts` WHERE `title` LIKE \"%$search%\" OR `content` LIKE '%$search%'");
-			$ids = Hash::extract($ids,'{n}.id');
+			$wsearch = '%'.$search.'%'; //add wildcards to search variable as will not concatinate in sql query
+			$ids = $this->Model->Posts->find(array('`title` LIKE ? OR `content` LIKE ?', $wsearch, $wsearch)); //paramenterised query using the find() function
 			if(empty($ids)) {
 				StatusMessage::add('No search results found for ' . $search); 
 				return $f3->reroute('/blog/search');
 			}
 
 			//Load associated data
-			$posts = $this->Model->Posts->fetchAll(array('id' => $ids));
-			$blogs = $this->Model->map($posts,'user_id','Users');
-			$blogs = $this->Model->map($posts,array('post_id','Post_Categories','category_id'),'Categories',false,$blogs);
+			// $posts = $this->Model->Posts->fetchAll(array('id' => $ids)); -> no longer needed with the new query
+			$blogs = $this->Model->map($ids,'user_id','Users');
+			$blogs = $this->Model->map($ids,array('post_id','Post_Categories','category_id'),'Categories',false,$blogs);
 
 			$f3->set('blogs',$blogs);
 			$this->action = 'results';	

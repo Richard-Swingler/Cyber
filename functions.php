@@ -19,4 +19,9 @@ function h($text) {
 	return htmlspecialchars($text);
 }
 
+function clearpecialchar($string) {
+	$invalid_characters = array("$", "%", "#", "<", ">", "|");
+	$string = str_replace($invalid_characters, "", $string);
+   	return $string; // Removes special chars.
+}
 ?>

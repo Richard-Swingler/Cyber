@@ -29,7 +29,8 @@
         </li>
 	<? else: ?>
             <li><a href="<?= $site['base'] ?>/user/add">Register</a></li>
-            <li><a href="<?= $site['base'] ?>/user/login?from=<?= urlencode($site['path']) ?>">Login</a></li>
+            <li><a href="<?= $site['base'] ?>/user/login">Login</a></li>
+            <?  $_SESSION['from'] = ($site['path'] == '/user/login' ? (isset($_SESSION['from']) ? $_SESSION['from'] : '') : $site['path']); //storing redirect info into seesion instead of $_GET ?>
 	<? endif; ?>
       </ul>
         </div><!--/.nav-collapse -->
